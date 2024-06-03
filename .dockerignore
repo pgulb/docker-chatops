@@ -2,3 +2,5 @@
 .dockerignore
 .gitignore
 *.sh
+.git/
+.github/

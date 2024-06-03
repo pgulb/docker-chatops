@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -93,6 +94,10 @@ func main() {
 }
 
 func ps(ctx context.Context, b *bot.Bot, update *models.Update) {
+	if !slices.Contains(allowedChatIds, update.Message.Chat.ID) {
+		log.Println("Unauthorized access blocked")
+		return
+	}
 	resp, err := docker.ListContainers(ctx)
 	if err != nil {
 		log.Println(err.Error())
@@ -123,6 +128,10 @@ func initLogKeyboard(b *bot.Bot, ctx context.Context) error {
 }
 
 func logs(ctx context.Context, b *bot.Bot, update *models.Update) {
+	if !slices.Contains(allowedChatIds, update.Message.Chat.ID) {
+		log.Println("Unauthorized access blocked")
+		return
+	}
 	err := initLogKeyboard(b, ctx)
 	if err != nil {
 		log.Println(err.Error())
@@ -140,6 +149,10 @@ func logs(ctx context.Context, b *bot.Bot, update *models.Update) {
 }
 
 func onReplyLogs(ctx context.Context, b *bot.Bot, update *models.Update) {
+	if !slices.Contains(allowedChatIds, update.Message.Chat.ID) {
+		log.Println("Unauthorized access blocked")
+		return
+	}
 	if update.Message.Text == "Cancel Logs" {
 		message("Cancelled.", b, ctx, update.Message.Chat.ID)
 		return
@@ -176,6 +189,10 @@ func initRestartKeyboard(b *bot.Bot, ctx context.Context) error {
 }
 
 func restart(ctx context.Context, b *bot.Bot, update *models.Update) {
+	if !slices.Contains(allowedChatIds, update.Message.Chat.ID) {
+		log.Println("Unauthorized access blocked")
+		return
+	}
 	err := initRestartKeyboard(b, ctx)
 	if err != nil {
 		log.Println(err.Error())
@@ -193,6 +210,10 @@ func restart(ctx context.Context, b *bot.Bot, update *models.Update) {
 }
 
 func onReplyRestart(ctx context.Context, b *bot.Bot, update *models.Update) {
+	if !slices.Contains(allowedChatIds, update.Message.Chat.ID) {
+		log.Println("Unauthorized access blocked")
+		return
+	}
 	if update.Message.Text == "Cancel Restart" {
 		message("Cancelled.", b, ctx, update.Message.Chat.ID)
 		return
