@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
@@ -188,10 +189,10 @@ Size: %v
 	return strings.Join(resp, "\n"), nil
 }
 
-func GetDockerVersion(ctx context.Context) (string, error) {
+func GetDockerVersion(ctx context.Context) (types.Version, error) {
 	apiClient, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
-		return "", err
+		return types.Version{}, err
 	}
 	defer apiClient.Close()
 
@@ -199,7 +200,7 @@ func GetDockerVersion(ctx context.Context) (string, error) {
 	defer cancel()
 	version, err := apiClient.ServerVersion(ctxTimeout)
 	if err != nil {
-		return "", err
+		return types.Version{}, err
 	}
-	return version.Version, nil
+	return version, nil
 }

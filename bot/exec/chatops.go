@@ -19,7 +19,7 @@ import (
 	"github.com/pgulb/docker-chatops/docker"
 )
 
-const botVersion = "v1.1.1"
+const botVersion = "v1.1.2"
 
 var allowedChatIds []int64
 var logsReplyKeyboard *reply.ReplyKeyboard
@@ -288,7 +288,7 @@ func version(ctx context.Context, b *bot.Bot, update *models.Update) {
 		message(err.Error(), b, ctx, update.Message.Chat.ID)
 	} else {
 		resp := fmt.Sprintf(
-			"Bot version: %v\nDocker version: %v",
+			"Bot version: %v\nDocker version specifics:\n%+v",
 			botVersion,
 			resp,
 		)
