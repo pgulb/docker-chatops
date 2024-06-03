@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"math"
 	"strings"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 )
 
@@ -128,4 +130,76 @@ func RestartContainer(ctx context.Context, containerName string) (string, error)
 		return "", err
 	}
 	return "Container restarted.", nil
+}
+
+func prettyByteSize(b int) string {
+	bf := float64(b)
+	for _, unit := range []string{"", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"} {
+		if math.Abs(bf) < 1024.0 {
+			return fmt.Sprintf("%3.1f%sB", bf, unit)
+		}
+		bf /= 1024.0
+	}
+	return fmt.Sprintf("%.1fYiB", bf)
+}
+
+func GetImages(ctx context.Context) (string, error) {
+	apiClient, err := client.NewClientWithOpts(client.FromEnv)
+	if err != nil {
+		return "", err
+	}
+	defer apiClient.Close()
+	ctxTimeout, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+	images, err := apiClient.ImageList(
+		ctxTimeout,
+		image.ListOptions{
+			All:            true,
+			SharedSize:     true,
+			ContainerCount: true,
+		},
+	)
+	if err != nil {
+		return "", err
+	}
+	var resp []string
+	untagged := 0
+	for _, image := range images {
+		if len(image.RepoTags) == 0 {
+			untagged++
+			continue
+		}
+		var repoTags string
+		for _, repoTag := range image.RepoTags {
+			repoTags += fmt.Sprintf("%v,", repoTag)
+		}
+		resp = append(resp,
+			fmt.Sprintf(
+				`Tags: %v
+Size: %v
+`,
+				repoTags,
+				prettyByteSize(int(image.Size)),
+			),
+		)
+	}
+
+	resp = append(resp, fmt.Sprintf("There are %v untagged images.", untagged))
+	return strings.Join(resp, "\n"), nil
+}
+
+func GetDockerVersion(ctx context.Context) (string, error) {
+	apiClient, err := client.NewClientWithOpts(client.FromEnv)
+	if err != nil {
+		return "", err
+	}
+	defer apiClient.Close()
+
+	ctxTimeout, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+	version, err := apiClient.ServerVersion(ctxTimeout)
+	if err != nil {
+		return "", err
+	}
+	return version.Version, nil
 }

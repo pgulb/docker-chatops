@@ -5,4 +5,5 @@ RUN go mod download && cd bot/exec && go build -o /app/chatops -ldflags="-extldf
 
 FROM scratch
 COPY --from=buildstage /app/chatops /app/chatops
+WORKDIR /app
 CMD [ "/app/chatops" ]
