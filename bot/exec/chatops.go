@@ -19,7 +19,7 @@ import (
 	"github.com/pgulb/docker-chatops/docker"
 )
 
-const botVersion = "v1.1.0"
+const botVersion = "v1.1.1"
 
 var allowedChatIds []int64
 var logsReplyKeyboard *reply.ReplyKeyboard
@@ -103,6 +103,7 @@ func main() {
 	b.RegisterHandler(bot.HandlerTypeMessageText, "/images", bot.MatchTypeExact, images)
 	b.RegisterHandler(bot.HandlerTypeMessageText, "/version", bot.MatchTypeExact, version)
 
+	log.Println("docker-chatops version: " + botVersion)
 	log.Println("*** Chatops bot started ***")
 	messageAll("*Chatops bot started*", b, ctx)
 	b.Start(ctx)
