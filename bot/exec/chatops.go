@@ -19,7 +19,7 @@ import (
 	"github.com/pgulb/docker-chatops/docker"
 )
 
-const botVersion = "v1.1.2"
+const botVersion = "v1.1.3"
 
 var allowedChatIds []int64
 var logsReplyKeyboard *reply.ReplyKeyboard
